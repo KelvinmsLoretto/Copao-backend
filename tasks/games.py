@@ -5,14 +5,7 @@ import os
 
 class Games(object):
     page_games = None
-
-    def __init__(self) -> None:
-        self.session = requests.Session()
-
-    def get_source_calendar_world_cup(self):
-        """request page source in futeboleiro for get datetime for games world cup futball
-        """
-        headers = {
+    headers = {
             'Host': 'www.futeboleiro.com',
             'Sec-Ch-Ua': '"Chromium";v="107", "Not=A?Brand";v="24"',
             'Sec-Ch-Ua-Mobile': '?0',
@@ -23,18 +16,26 @@ class Games(object):
             'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
             'Connection': 'close',
         }
-
-        response = self.session.get('https://www.futeboleiro.com/copa-do-mundo-2022/calendario/', headers=headers, verify=False)
+    
+    def __init__(self) -> None:
+        self.session = requests.Session()
+        self.session.headers.update(self.headers)
+        
+    def get_source_calendar_world_cup(self):
+        """request page source in futeboleiro for get datetime for games world cup futball
+        """
+        response = self.session.get('https://www.futeboleiro.com/copa-do-mundo-2022/calendario/')
         
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
             self.page_games = soup
 
-    def find_games_page_games(self):
+    def find_games_in_page_table(self):
         game_time = self.page_games.find_all("div", {"class": "games-overview-table__date date-time"})
         game_teams = self.page_games.find_all("div", {"class": "games-overview-table__teams"})
         stadium = self.page_games.find_all("div", {"class": "games-overview-table__stadium stadium-name"})
         
         for x in range(0, len(game_teams)):
             print(f'o jogo entre {game_teams[x].text} ocorrerá no dia {game_time[x].text} no estádio {stadium[x].text}')
+
 
